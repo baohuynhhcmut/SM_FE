@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Box,
   Typography,
@@ -10,10 +10,24 @@ import {
 } from '@mui/material';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
+import { useAuth } from '../../AuthWrapper';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import { toast } from 'react-toastify';
 
 const HeaderProduct = ({props}) => {
 
+  const {cart,setCart} = useAuth()
+  
+  const checkProductInCart = () => {
+    // Kiểm tra xem product_id có trong giỏ hàng không
+    return cart.some((item) => item.product_id == props.ID);
+  };
+
+  const [inCart,setInCart] = useState(checkProductInCart())
+
   const handleAddToCart = async () => {
+      console.log("CLick")
+
       const cusID = localStorage.getItem("id")
       const prodID = props.ID
       const body = {
@@ -30,9 +44,27 @@ const HeaderProduct = ({props}) => {
       });
 
       const data = await response.json();
+      
+      console.log("data: ",data)
 
-      console.log(data)
+      if(data.status == "NEW"){
+          setInCart(true)
+          setCart(data.cart)
+          toast.success("Sản phẩm đã được thêm vào giỏ hàng!", {
+            position: "top-right",
+            autoClose: 3000, // Đóng sau 3 giây
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "light",
+          });
+      }
   }
+  
+  console.log(inCart)
+ 
 
   return (
     <Box component="section" sx={{ py: 0, px: 2 }}>
@@ -117,11 +149,20 @@ const HeaderProduct = ({props}) => {
                 sx={{
                   flexGrow: 1,
                   minWidth: { xs: '150px', sm: 'auto' },
+                  maxWidth: { xs: '200px', sm: 'auto' },
+
                 }}
+                // className='w-6 h-10'
               >
                 Add to favorites
               </Button>
-              <Button
+
+              {inCart ?(
+                <Button variant="contained" color="success" startIcon={<CheckCircleIcon />}>
+                    Success
+                </Button>
+              ):(
+                <Button
                 variant="contained"
                 color="primary"
                 startIcon={<ShoppingCartIcon sx={{ color: 'white' }} />}
@@ -133,6 +174,7 @@ const HeaderProduct = ({props}) => {
               >
                 Add to cart
               </Button>
+              )}
             </Box>
 
             {/* Divider */}

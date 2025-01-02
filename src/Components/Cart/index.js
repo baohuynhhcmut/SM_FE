@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Dialog,
   DialogBackdrop,
@@ -8,6 +8,7 @@ import {
 import { XMarkIcon } from "@heroicons/react/24/outline";
 import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
 import { useTheme } from "@mui/material/styles";
+import { useAuth } from "../../AuthWrapper";
 
 const products = [
   {
@@ -41,6 +42,44 @@ export default function Example() {
   const [open, setOpen] = useState(false); // Initially the dialog is closed
   const theme = useTheme(); // Access MUI theme
 
+  const {cart,setCart} = useAuth()
+  const [cartRender,setCartRender] = useState([])
+
+  const id = localStorage.getItem("id")
+
+  console.log("Cart", cart)
+
+  // const [cart,setCart] = useState([])
+  useEffect(() => {
+    const fetchAPI = async () => {
+      try {
+        const response = await fetch("http://localhost:5000/cart/get-cart", {
+          method: "POST",
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ customerId: id }), // Pass the correct body structure
+        });
+        
+        console.log("Response:", response);
+
+        if (response.ok) {
+          const data = await response.json();
+          // console.log("Data: ",data)
+          setCartRender(data);
+        } else {
+          console.error("Failed to fetch cart data.");
+        }
+      } catch (error) {
+        console.error("Error fetching cart data:", error);
+      }
+    };
+  
+    fetchAPI();
+  }, [cart]);
+
+  
+  
   const handleOpenDialog = () => {
     setOpen(true); // Opens the dialog
   };
@@ -118,78 +157,84 @@ export default function Example() {
                           role="list"
                           className="-my-6 divide-y divide-gray-200"
                         >
-                          {products.map((product) => (
-                            <li key={product.id} className="flex py-6">
-                              <div className="size-24 shrink-0 overflow-hidden rounded-md border border-gray-200">
-                                <img
-                                  alt={product.imageAlt}
-                                  src={product.imageSrc}
-                                  className="size-full object-cover"
-                                />
-                              </div>
-
-                              <div className="ml-4 flex flex-1 flex-col">
-                                <div>
-                                  <div className="flex justify-between text-base font-medium">
-                                    <h3>
-                                      <a
-                                        href={product.href}
-                                        className={`${
+                          {cartRender.map((item) => {
+                            const product = item.Product
+                            return(
+                            
+                              <li key={product.ID} className="flex py-6">
+                                <div className="size-24 shrink-0 overflow-hidden rounded-md border border-gray-200">
+                                  <img
+                                    alt={product.Breed}
+                                    src={product.image}
+                                    className="size-full object-cover"
+                                  />
+                                </div>
+  
+                                <div className="ml-4 flex flex-1 flex-col">
+                                  <div>
+                                    <div className="flex justify-between text-base font-medium">
+                                      <h3>
+                                        <a
+                                          href={product.href}
+                                          className={`${
+                                            theme.palette.mode === "dark"
+                                              ? "text-white"
+                                              : "text-black"
+                                          }`}
+                                        >
+                                          {product.Breed}
+                                        </a>
+                                      </h3>
+                                      <p
+                                        className={`ml-4 ${
                                           theme.palette.mode === "dark"
                                             ? "text-white"
                                             : "text-black"
                                         }`}
                                       >
-                                        {product.name}
-                                      </a>
-                                    </h3>
+                                        {product.Price}
+                                      </p>
+                                    </div>
                                     <p
-                                      className={`ml-4 ${
+                                      className={`mt-1 text-sm ${
                                         theme.palette.mode === "dark"
-                                          ? "text-white"
-                                          : "text-black"
+                                          ? "text-gray-400"
+                                          : "text-gray-500"
                                       }`}
                                     >
-                                      {product.price}
+                                      {product.color}
                                     </p>
                                   </div>
-                                  <p
-                                    className={`mt-1 text-sm ${
-                                      theme.palette.mode === "dark"
-                                        ? "text-gray-400"
-                                        : "text-gray-500"
-                                    }`}
-                                  >
-                                    {product.color}
-                                  </p>
-                                </div>
-                                <div className="flex flex-1 items-end justify-between text-sm">
-                                  <p
-                                    className={`${
-                                      theme.palette.mode === "dark"
-                                        ? "text-gray-400"
-                                        : "text-gray-600"
-                                    }`}
-                                  >
-                                    Qty {product.quantity}
-                                  </p>
-
-                                  <div className="flex">
-                                    <button
-                                      type="button"
-                                      className={`font-medium ${
+                                  <div className="flex flex-1 items-end justify-between text-sm">
+                                    <p
+                                      className={`${
                                         theme.palette.mode === "dark"
-                                          ? "text-indigo-400 hover:text-indigo-300"
-                                          : "text-indigo-600 hover:text-indigo-500"
+                                          ? "text-gray-400"
+                                          : "text-gray-600"
                                       }`}
                                     >
-                                      Remove
-                                    </button>
+                                      Số lượng: {item.quantity}
+                                    </p>
+  
+                                    <div className="flex">
+                                      <button
+                                        type="button"
+                                        className={`font-medium ${
+                                          theme.palette.mode === "dark"
+                                            ? "text-indigo-400 hover:text-indigo-300"
+                                            : "text-indigo-600 hover:text-indigo-500"
+                                        }`}
+                                      >
+                                        Remove
+                                      </button>
+                                    </div>
                                   </div>
                                 </div>
-                              </div>
-                            </li>
-                          ))}
+                              </li>
+                            )
+                          })}
+
+
                         </ul>
                       </div>
                     </div>

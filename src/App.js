@@ -10,12 +10,16 @@ import LoginUser from './Pages/User Login';
 import ProtectedRoute from './ProtectedRoute';
 import { AuthProvider } from './AuthWrapper';
 import ProductFarm from './Pages/Product';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
 
 const App = () => {
   return (
     <>
+
     <AuthProvider>
-     
+    <ToastContainer /> 
       <Router>
          <ScrollToTop />
           <Routes>

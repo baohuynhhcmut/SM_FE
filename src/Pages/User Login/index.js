@@ -6,7 +6,7 @@ import { useAuth } from '../../AuthWrapper';
 import { useNavigate } from 'react-router-dom';
 
 const LoginUser = () => {
-    const {login} = useAuth()
+    const {login,setCart} = useAuth()
     const navigate = useNavigate()
 
     const [formData,setFormData] = useState({
@@ -34,8 +34,22 @@ const LoginUser = () => {
           body: JSON.stringify(formData),
         });
         
+        
+      
         if(response.status == 200){
           const data = await response.json()
+
+          const getCart = await fetch("http://localhost:5000/cart/get-cart", {
+            method: "POST",
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ customerId: data.user.id })
+          });
+          const cartUser = await getCart.json()
+          setCart(cartUser)
+          // console.log("cartUser",cartUser)
+
           console.log(data)
           login(data.token,data.user.id)
           navigate("/product")

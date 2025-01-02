@@ -96,7 +96,7 @@ const FilterModal = () => {
 
   return (
     <>
-      <Button variant="outlined" onClick={handleOpen} startIcon={<FilterAltIcon />} sx={{color:"#000"}}  className="border-gray-600">
+      <Button variant="outlined" onClick={handleOpen} startIcon={<FilterAltIcon />}>
         Open Filters
       </Button>
       <Dialog
